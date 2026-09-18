@@ -68,16 +68,6 @@ python -m app.main
 **Первый запуск:** скрипт поднимет Chromium → логин в VK → сохранит token → закроет браузер.  
 Дальше Chromium не нужен, пока token жив (при expire — автоперелогин).
 
-### Ручной token
-
-```json
-// data/vk_creds.json
-{
-  "access_token": "vk1.a....",
-  "user_id": 123456789
-}
-```
-
 ## systemd
 
 См. `vk2tg.service.example`.
@@ -98,10 +88,6 @@ app/
 data/   # credentials, media (не в git)
 logs/
 ```
-
-## Безопасность
-
-Не коммить `.env` и `data/vk_creds.json`. Token = доступ к личным сообщениям.
 
 ## Лицензия
 
