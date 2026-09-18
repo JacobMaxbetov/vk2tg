@@ -1,0 +1,21 @@
+[Unit]
+Description=VK to Telegram bridge (vk2tg)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=rasp
+WorkingDirectory=/home/rasp/vk2tg
+Environment=PATH=/home/rasp/vk2tg/.venv/bin
+EnvironmentFile=-/home/rasp/vk2tg/.env
+ExecStart=/home/rasp/vk2tg/.venv/bin/python -m app.main
+Restart=always
+RestartSec=15
+
+# Для bootstrap (Chromium) на Pi с GUI/Wayland может понадобиться:
+# Environment=WAYLAND_DISPLAY=wayland-0
+# Environment=XDG_RUNTIME_DIR=/run/user/1000
+
+[Install]
+WantedBy=multi-user.target
