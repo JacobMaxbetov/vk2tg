@@ -28,7 +28,7 @@
 ## Установка
 
 ```bash
-git clone https://github.com/YOUR_USER/vk2tg.git
+git clone https://github.com/JacobMaxbetov/vk2tg.git
 cd vk2tg
 python3 -m venv .venv
 source .venv/bin/activate
