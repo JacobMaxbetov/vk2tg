@@ -13,6 +13,6 @@
 - Автоочистка `data/media/` после успешной доставки
 - Утилита `python -m app.list_chats` — «Название | peer_id»
 
-### Not in scope (0.1)
+### Not TODO (Anyway):
 - Голосовые сообщения
 - Ответы из Telegram → VK
