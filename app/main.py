@@ -206,31 +206,18 @@ async def run() -> None:
         await tg.send_warning(text)
 
     async def load_vk(force: bool = False) -> VKClient:
-        creds = await ensure_credentials(
-            store,
-            cdp_url=settings.cdp_url,
-            profile_dir=settings.vk_profile_dir,
-            force=force,
-            login_timeout=180.0,
-        )
-        client = VKClient(
-            access_token=creds["access_token"],
-            user_id=creds.get("user_id"),
-            reconnect_max=settings.reconnect_max_attempts,
-            reconnect_backoff=settings.reconnect_backoff_sec,
-        )
-        try:
-            await client.start()
-        except AuthExpiredError:
-            log.warning("Token expired — forcing re-login via Chromium")
-            await on_warning("VK token истёк, запускаю повторный логин…")
-            await client.close()
-            store.clear()
+        """Загрузить credentials и поднять Long Poll. При auth-ошибке — force bootstrap."""
+        attempts = 0
+        last_err: Exception | None = None
+        use_force = force
+
+        while attempts < 3:
+            attempts += 1
             creds = await ensure_credentials(
                 store,
                 cdp_url=settings.cdp_url,
                 profile_dir=settings.vk_profile_dir,
-                force=True,
+                force=use_force,
                 login_timeout=180.0,
             )
             client = VKClient(
@@ -239,8 +226,37 @@ async def run() -> None:
                 reconnect_max=settings.reconnect_max_attempts,
                 reconnect_backoff=settings.reconnect_backoff_sec,
             )
-            await client.start()
-        return client
+            client.cookies = creds.get("cookies") or {}
+            try:
+                await client.start()
+                return client
+            except AuthExpiredError as e:
+                last_err = e
+                log.warning(
+                    "Auth failed (%s) — force re-login via Chromium (try %d/3)",
+                    e,
+                    attempts,
+                )
+                await on_warning(f"VK auth failed: {e}. Перелогин ({attempts}/3)…")
+                try:
+                    await client.close()
+                except Exception:
+                    pass
+                store.clear()
+                use_force = True
+            except Exception as e:
+                # на всякий случай закрыть сессию
+                try:
+                    await client.close()
+                except Exception:
+                    pass
+                raise
+
+        await on_warning(
+            f"VK: не удалось получить рабочий token после 3 попыток. "
+            f"Последняя ошибка: {last_err}. Сервис подождёт и повторит (systemd)."
+        )
+        raise RuntimeError(f"VK auth failed after retries: {last_err}")
 
     vk = await load_vk(force=False)
     # cookies из credentials для скачивания doc

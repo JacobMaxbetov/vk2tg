@@ -65,7 +65,11 @@ class VKClient:
             err = data["error"]
             code = err.get("error_code")
             msg = err.get("error_msg")
-            if code == 5:
+            # 5 = user auth failed; 1114 = anonymous token expired (web-token)
+            # 15 = access denied (often bad/expired token for method)
+            if code in (5, 1114) or (
+                code == 15 and msg and "token" in str(msg).lower()
+            ):
                 raise AuthExpiredError(f"VK API error {code}: {msg}")
             raise RuntimeError(f"VK API error {code}: {msg}")
         return data.get("response", data)
