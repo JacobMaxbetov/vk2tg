@@ -103,6 +103,10 @@ logs/
 
 Не коммить `.env` и `data/vk_creds.json`. Token = доступ к личным сообщениям.
 
+## Цели
+
+Переписать проект под CDP Network: WebSocket frames ловлю
+
 ## Лицензия
 
 MIT — [LICENSE](LICENSE)
