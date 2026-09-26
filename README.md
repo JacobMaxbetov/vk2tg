@@ -105,7 +105,7 @@ logs/
 
 ## Цели
 
-Переписать проект под CDP Network: WebSocket frames ловлю
+Переписать проект под VK Remote Client
 
 ## Лицензия
 
